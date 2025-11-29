@@ -170,7 +170,7 @@ def transcribe_forever(): # 변환 함수
             buffer = np.zeros(0, dtype=np.float32)
             silence_chunks = 0
             had_speech = False
-
+ 
 
 def main():
     global running
