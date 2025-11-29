@@ -170,7 +170,11 @@ def transcribe_forever(): # 변환 함수
 
             text = "".join(seg.text for seg in segments).strip()
             if text:
-                print("[TEXT]", text)
+                if text[0:2] == '길벗':
+                    print("[TEXT]", text)
+                else:
+                    print("[TEXT]", text)
+                    print("[INFO] [음성이 감지 되었으나 전송은 안함]")                
             else:
                 print("[INFO] [음성 미 감지]")
 
