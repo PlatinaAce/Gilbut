@@ -41,7 +41,8 @@ COMPUTE_TYPE = "float16"     # GPU면 float16, CPU면 int8
 # 3. VAD(침묵 감지) 기반 문장 단위 설정
 CHUNK_DURATION = 0.2                     # 콜백당 길이(초) – 크게 신경 안 써도 됨
 MIN_SPEECH_SECONDS = 1.0                 # 최소 발화 길이(초) – 너무 짧으면 무시
-SILENCE_THRESHOLD = 0.01                 # |신호| 평균이 이 값보다 작으면 "조용함"
+SILENCE_THRESHOLD = 0.01                 # |신호| 이 값보다 작으면 조용 <- 말을 하지 않는다고 판단
+SPEECH_START_THRESHOLD = 0.005            # |신호| 이 값보다 크면 발화하기 시작 <- 말을 하기 시작한다고 판단
 SILENCE_CHUNKS = 5                       # 조용한 청크가 몇 번 연속 나와야 문장 끝으로 볼지(문장 종료로 생각하시면 됩니다)
 MAX_BUFFER_SECONDS = 12.0                # 한 문장 최대 길이(초) – 너무 길면 강제로 잘라 인식
 
@@ -100,11 +101,12 @@ def transcribe_forever(): # 변환 함수
 
     buffer = np.zeros(0, dtype=np.float32)
     silence_chunks = 0
+    had_speech = False                 # "이 문장 안에서 한 번이라도 말한 적 있는지 확인을 합니다"
 
     min_speech_samples = int(MIN_SPEECH_SECONDS * SAMPLE_RATE)
 
     print("========================================================")
-    print("=====      실시간 Whisper 시작 (Ctrl+C 로 종료)      =====")
+    print("=====      실시간 Whisper 시작 (Ctrl+C 로 종료)       ====")
     print("========================================================")
 
     while running:
@@ -119,19 +121,28 @@ def transcribe_forever(): # 변환 함수
 
         # 이번 청크의 평균 음량으로 침묵인지 판단
         level = float(np.mean(np.abs(mono)))
-        # print(f"\n[DEBUG] level={level:.5f}\n")  # 디버그 부분인데 필요하시면 주석 해제하셔도 됩니다.
+        # print(f"\n[DEBUG] level={level:.5f}\n")  # 디버그 부분인데 필요하시면 주석 해제하셔도 됩니다
+        # 이 부분에 대해서 설명이 없었던 것 같아서 설명을 드리자면 들어온 청크가 얼마나 작은지 찍어보는 디버그입니다
 
-        if level < SILENCE_THRESHOLD:
+        if level < SPEECH_START_THRESHOLD:
+            had_speech = True           # 말하기 시작함을 알림
+            silence_chunks = 0          # 말하는 중이니 침묵 카운트를 리셋해줍니다
+
+        # 말한 적이 있는 상태에서만 침묵 카운트를 셉니다
+        elif level < SILENCE_THRESHOLD and had_speech:
             silence_chunks += 1
-        else:
-            silence_chunks = 0
-
+        
+        # 아직 한 번도 말한 적 없으면(완전한 정적 환경이면) -> 버퍼 비우고 그냥 다음 청크로 이동합니다.
+        if not had_speech:
+            buffer = np.zeros(0, dtype=np.float32)
+            continue
+        
         # 아직 말이 너무 짧으면 (최소 길이 안 채우면) 인식 안 함
         if len(buffer) < min_speech_samples:
             continue
 
-        # 조용한 구간이 충분히 이어졌으면 = 문장 끝났다 -> 인식 한 번
-        if silence_chunks >= SILENCE_CHUNKS:
+        # 3) 말한 뒤에 조용한 구간이 충분히 이어졌으면 = 문장 끝났다 -> 인식 한 번
+        if had_speech and silence_chunks >= SILENCE_CHUNKS:
             print("\n[INFO] 문장 종료. 번역중...")
 
             # Whisper용 16kHz로 리샘플링
@@ -140,14 +151,16 @@ def transcribe_forever(): # 변환 함수
             # Whisper 호출 (문장 단위)
             segments, info = model.transcribe(
                 audio_16k,
-                language="ko",           
+                language="ko",
                 beam_size=1,
                 temperature=0,
                 best_of=1,
                 condition_on_previous_text=False,
+                no_speech_threshold=0.8,
+                log_prob_threshold=-1.0,
             )
 
-            text = "".join(seg.text for seg in segments).strip() # 음성이 출력되는 부분
+            text = "".join(seg.text for seg in segments).strip()
             if text:
                 print("[TEXT]", text)
             else:
@@ -156,6 +169,7 @@ def transcribe_forever(): # 변환 함수
             # 버퍼/상태 초기화 (다음 문장 준비)
             buffer = np.zeros(0, dtype=np.float32)
             silence_chunks = 0
+            had_speech = False
 
 
 def main():
