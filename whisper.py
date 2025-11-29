@@ -159,9 +159,9 @@ def transcribe_forever(): # 변환 함수
             segments, info = model.transcribe(
                 audio_16k,
                 language="ko",
-                beam_size=1,
+                beam_size=5,
                 temperature=0,
-                best_of=1,
+                best_of=3,
                 condition_on_previous_text=False,
                 initial_prompt=CAMPUS_PROMPT,
                 no_speech_threshold=0.8,
