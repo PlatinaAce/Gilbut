@@ -23,6 +23,8 @@ import queue
 import numpy as np
 import sounddevice as sd
 from faster_whisper import WhisperModel
+import websocket
+import time
 
 # ===========
 #    설정 
@@ -53,6 +55,12 @@ CAMPUS_PROMPT = (
     "사용자는 보통 '길벗아 비전타워까지 안내해줘', '길벗아 중앙도서관으로 가자' , '길벗 가천관으로 가줘' 와 같이 말합니다."
 )
 
+# 5. WebSocket 설정 
+WS_URL = ""
+ws = None
+
+
+
 
 # 장치 기본 샘플레이트 사용
 device_info = sd.query_devices(DEVICE_INDEX, "input")
@@ -77,6 +85,44 @@ MAX_BUFFER_SAMPLES = int(SAMPLE_RATE * MAX_BUFFER_SECONDS)
 
 audio_queue = queue.Queue()
 running = True
+
+
+def connect_ws(): # WebSocket 연결함수
+    global ws
+    while True:
+        try:
+            print(f"[WEBSOCKET] Connect to {WS_URL}...")
+            ws = websocket.create_connection(WS_URL)
+            print("[WEBSOCKET] Connected")
+            break
+        except Exception as e:
+            print("[WEBSOCKET] Connect failed : ", e)
+            time.sleep(2)
+
+
+def send_to_spring(text: str): # WebSocket 전송함수
+    global ws
+    
+    if ws == None:
+        connect_ws()
+        
+    json = {
+        "text" : text,
+        "time" : int(time.time() * 1000),
+    }
+    msg = json.dumps(json, ensure_ascii = False)
+    
+    try:
+        ws.send(msg)
+        print("[WEBSOCKET] Send Complete\n\n")
+    except Exception as e:
+        print("[WEBSOCKET] Send Failed :\n\n", e)
+        try:
+            ws.close()
+        except:
+            pass
+        
+        ws = None
 
 
 def resample_to_16k(audio: np.ndarray, orig_sr: int) -> np.ndarray:
@@ -172,6 +218,7 @@ def transcribe_forever(): # 변환 함수
             if text:
                 if text[0:2] == '길벗':
                     print("[TEXT]", text)
+                    send_to_spring(text)
                 else:
                     print("[TEXT]", text)
                     print("[INFO] [음성이 감지 되었으나 전송은 안함]")                
@@ -187,6 +234,8 @@ def transcribe_forever(): # 변환 함수
 def main():
     global running
 
+    connect_ws()
+
     with sd.InputStream(
         samplerate=SAMPLE_RATE,
         channels=CHANNELS,
@@ -201,6 +250,12 @@ def main():
             print("\n[INFO] 종료 요청, 정리 중...")
         finally:
             running = False
+            if ws != None:
+                try:
+                    ws.close()
+                except:
+                    pass
+            print("[INFO] 종료 완료")
 
 
 if __name__ == "__main__":
