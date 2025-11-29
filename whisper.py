@@ -46,6 +46,13 @@ SPEECH_START_THRESHOLD = 0.005            # |신호| 이 값보다 크면 발화
 SILENCE_CHUNKS = 5                       # 조용한 청크가 몇 번 연속 나와야 문장 끝으로 볼지(문장 종료로 생각하시면 됩니다)
 MAX_BUFFER_SECONDS = 12.0                # 한 문장 최대 길이(초) – 너무 길면 강제로 잘라 인식
 
+# 4. 캠퍼스 initial_prompt 설정 <- 입맛대로 하시면 될듯합니다.  
+CAMPUS_PROMPT = (
+    "이 로봇의 이름은 길벗입니다. "
+    "자주 등장하는 장소: 가천관, 비전타워, 글로벌센터, 중앙도서관, 공과대학, 산학협력관, 학생회관, 기숙사, 정문, 후문, 계단, 건물, 바나대, AI공학관, 에공관. "
+    "사용자는 보통 '길벗아 비전타워까지 안내해줘', '길벗아 중앙도서관으로 가자' , '길벗 가천관으로 가줘' 와 같이 말합니다."
+)
+
 
 # 장치 기본 샘플레이트 사용
 device_info = sd.query_devices(DEVICE_INDEX, "input")
@@ -156,6 +163,7 @@ def transcribe_forever(): # 변환 함수
                 temperature=0,
                 best_of=1,
                 condition_on_previous_text=False,
+                initial_prompt=CAMPUS_PROMPT,
                 no_speech_threshold=0.8,
                 log_prob_threshold=-1.0,
             )
