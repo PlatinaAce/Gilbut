@@ -107,6 +107,7 @@ def send_to_spring(text: str): # WebSocket 전송함수
         connect_ws()
         
     json = {
+        "status": "success", # 넣어는 놓았으나 실제로 쓰이지는 않을듯 합니다 ㅋㅋㅋ
         "text" : text,
         "time" : int(time.time() * 1000),
     }
@@ -229,7 +230,7 @@ def transcribe_forever(): # 변환 함수
             buffer = np.zeros(0, dtype=np.float32)
             silence_chunks = 0
             had_speech = False
- 
+
 
 def main():
     global running
