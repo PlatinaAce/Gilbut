@@ -1,0 +1,41 @@
+<launch>
+  <!-- CARLA Spawn Point (from your original launch file) -->
+  <arg name="spawn_point" default="-3.68, -270.73, 0.3, 0.0, 0.0, 90.0"/>
+  
+  <!-- Start CARLA ROS Bridge with ego vehicle -->
+  <include file="$(find carla_ros_bridge)/launch/carla_ros_bridge_with_example_ego_vehicle.launch">
+    <arg name="spawn_point" value="$(arg spawn_point)"/>
+  </include>
+  
+  <!-- Convert LiDAR PointCloud2 to LaserScan -->
+  <node pkg="pointcloud_to_laserscan" type="pointcloud_to_laserscan_node" name="pointcloud_to_laserscan">
+    <remap from="cloud_in" to="/carla/ego_vehicle/lidar"/>
+    <remap from="scan" to="/carla/ego_vehicle/lidar/scan"/>
+    <rosparam>
+      target_frame: ego_vehicle
+      transform_tolerance: 0.01
+      min_height: -0.5
+      max_height: 2.0
+      angle_min: -3.14
+      angle_max: 3.14
+      angle_increment: 0.0087
+      scan_time: 0.1
+      range_min: 0.5
+      range_max: 100.0
+      use_inf: true
+      inf_epsilon: 1.0
+    </rosparam>
+  </node>
+  
+  <!-- Map Server (if using static map) -->
+  <!-- <node pkg="map_server" type="map_server" name="map_server" args="$(find navigation_stack)/maps/map.yaml"/> -->
+  
+  <!-- Move Base -->
+  <include file="$(find navigation_stack)/launch/move_base.launch"/>
+  
+  <!-- CARLA Diff Drive Controller -->
+  <include file="$(find navigation_stack)/launch/carla_diff_drive_controller.launch"/>
+  
+  <!-- RViz -->
+  <node pkg="rviz" type="rviz" name="rviz" args="-d $(find navigation_stack)/rviz/navigation.rviz"/>
+</launch>

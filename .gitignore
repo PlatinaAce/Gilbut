@@ -1,0 +1,37 @@
+# Python
+*.pyc
+__pycache__/
+*.py[cod]
+*$py.class
+
+# ROS
+build/
+devel/
+install/
+*.launch~
+*.yaml~
+
+# Backup files
+*.backup
+*.bak
+*~
+*.swp
+*.swo
+
+# Log files
+*.log
+
+# IDE
+.vscode/
+.idea/
+*.code-workspace
+
+# OS
+.DS_Store
+Thumbs.db
+*.tmp
+
+# Maps (너무 크면)
+# maps/*.pcd
+# maps/*.pgm
+# maps/*.png

@@ -1,0 +1,85 @@
+<launch>
+  <!-- CARLA connection -->
+  <arg name='host' default='localhost'/>
+  <arg name='port' default='2000'/>
+  <arg name='timeout' default='10'/>
+  <arg name='role_name' default='ego_vehicle'/>
+  <arg name="vehicle_filter" default='vehicle.*'/>
+  <arg name="spawn_point" default="-3.68, -270.73, 0.3, 0.0, 0.0, 90.0"/>
+  <arg name="town" default='Town02'/>
+  
+  <!-- 1. CARLA ROS Bridge with Ego Vehicle -->
+  <include file="$(find carla_ros_bridge)/launch/carla_ros_bridge_with_example_ego_vehicle.launch">
+    <arg name="host" value="$(arg host)"/>
+    <arg name="port" value="$(arg port)"/>
+    <arg name="town" value="$(arg town)"/>
+    <arg name="spawn_point" value="$(arg spawn_point)"/>
+    <arg name="role_name" value="$(arg role_name)"/>
+  </include>
+  
+  <!-- 2. Static Map Server (map load )-->
+  <node pkg="map_server" type="map_server" name="map_server" 
+        args="$(find navigation_stack)/maps/scans.yaml" output="screen">
+    <param name="frame_id" value="map"/>
+  </node> 
+  
+  <!-- 3. HDL Localization (3D PCD 맵으로 위치 추정)-->
+  <include file="$(find hdl_localization)/launch/hdl_localization.launch">
+    <arg name="points_topic" value="/carla/ego_vehicle/lidar"/>
+    <arg name="odom_child_frame_id" value="ego_vehicle"/>
+  </include> 
+
+  <!-- 3-1. Odometry를 TF로 변환 (추가) -->
+  <node pkg="robot_localization" type="ekf_localization_node" name="ekf_odom" clear_params="true" output="screen">
+    <param name="frequency" value="30"/>
+    <param name="sensor_timeout" value="0.1"/>
+    <param name="two_d_mode" value="true"/>
+    
+    <param name="map_frame" value="map"/>
+    <param name="odom_frame" value="odom"/>
+    <param name="base_link_frame" value="ego_vehicle"/>
+    <param name="world_frame" value="odom"/>
+    
+    <param name="transform_time_offset" value="0.0"/>
+    <param name="odom0" value="/carla/ego_vehicle/odometry"/>
+    
+    <rosparam param="odom0_config">[true,  true,  false,
+                                    false, false, true,
+                                    true,  true,  false,
+                                    false, false, true,
+                                    false, false, false]</rosparam>
+    
+    <param name="odom0_differential" value="false"/>
+    <param name="odom0_relative" value="false"/>
+    <param name="print_diagnostics" value="true"/>
+  </node>
+  
+  <!-- 4. Convert LiDAR PointCloud2 to LaserScan for Navigation -->
+  <node pkg="pointcloud_to_laserscan" type="pointcloud_to_laserscan_node" name="pointcloud_to_laserscan" output="screen">
+    <remap from="cloud_in" to="/carla/ego_vehicle/lidar"/>
+    <remap from="scan" to="/carla/ego_vehicle/lidar/scan"/>
+    <rosparam>
+      target_frame: ego_vehicle
+      transform_tolerance: 0.5
+      min_height: -0.5
+      max_height: 2.0
+      angle_min: -3.14
+      angle_max: 3.14
+      angle_increment: 0.0087
+      scan_time: 0.1
+      range_min: 0.5
+      range_max: 100.0
+      use_inf: true
+      inf_epsilon: 1.0
+    </rosparam>
+  </node>
+  
+  <!-- 5. Move Base (A* + DWA) -->
+  <include file="$(find navigation_stack)/launch/move_base.launch"/>
+  
+  <!-- 6. CMD_VEL to CARLA Ackermann Controller -->
+  <include file="$(find navigation_stack)/launch/carla_diff_drive_controller.launch"/>
+  
+  <!-- 7. RViz for Visualization -->
+  <node pkg="rviz" type="rviz" name="rviz" args="-d $(find navigation_stack)/rviz/navigation.rviz" required="false"/>
+</launch>
