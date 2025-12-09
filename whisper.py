@@ -25,6 +25,7 @@ import sounddevice as sd
 from faster_whisper import WhisperModel
 import websocket
 import time
+import json
 
 # ===========
 #    설정 
@@ -106,12 +107,12 @@ def send_to_spring(text: str): # WebSocket 전송함수
     if ws == None:
         connect_ws()
         
-    json = {
-        "status": "success", # 넣어는 놓았으나 실제로 쓰이지는 않을듯 합니다 ㅋㅋㅋ
+    send = {
+        "status": "SUCCESS", # 넣어는 놓았으나 실제로 쓰이지는 않을듯 합니다 ㅋㅋㅋ
         "text" : text,
         "time" : int(time.time() * 1000),
     }
-    msg = json.dumps(json, ensure_ascii = False)
+    msg = json.dumps(send, ensure_ascii = False)
     
     try:
         ws.send(msg)
