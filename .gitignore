@@ -1,0 +1,22 @@
+# --- 대용량 데이터 파일 (Data Files) ---
+*.pcd
+*.zip
+*.bag
+*.pbstream
+
+# --- Python 자동 생성 파일 및 가상환경 (Python & Venv) ---
+.venv/
+__pycache__/
+*.pyc
+*.egg-info/
+.eggs/
+
+# --- IDE 설정 파일 (IDE Settings) ---
+.vscode/
+.idea/
+
+# --- ROS/빌드 관련 (Build Artifacts) ---
+/build/
+/devel/
+/logs/
+*.swp
