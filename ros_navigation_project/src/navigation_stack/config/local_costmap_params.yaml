@@ -1,16 +1,16 @@
 local_costmap:
-  global_frame: map
+  global_frame: map            # map 프레임 사용 (global planner와 일치)
   robot_base_frame: ego_vehicle
-  update_frequency: 5.0
-  publish_frequency: 2.0
-  transform_tolerance: 5.0
+  update_frequency: 10.0       # 업데이트 주파수 증가
+  publish_frequency: 5.0       # 발행 주파수 증가
+  transform_tolerance: 0.5     # 변환 허용 오차 감소
   
   static_map: false
   rolling_window: true
   
-  width: 10.0
-  height: 10.0
-  resolution: 0.05
+  width: 30.0                  # 범위 확대 (고속 주행)
+  height: 30.0
+  resolution: 0.15             # 해상도 조정 (성능 최적화)
   
   plugins:
     - {name: obstacle_layer, type: "costmap_2d::ObstacleLayer"}

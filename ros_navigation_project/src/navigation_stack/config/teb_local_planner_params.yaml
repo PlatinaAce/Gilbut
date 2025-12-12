@@ -1,0 +1,112 @@
+TebLocalPlannerROS:
+
+  odom_topic: /carla/ego_vehicle/odometry
+  map_frame: map
+    
+  # Trajectory
+  teb_autosize: True
+  dt_ref: 0.5                             # 시간 간격 증가 (계산 단순화)
+  dt_hysteresis: 0.1
+  max_samples: 200                        # 샘플 수 감소 (빠른 계산)
+  global_plan_overwrite_orientation: True
+  allow_init_with_backwards_motion: True  # 후진 허용!
+  force_reinit_new_goal_dist: 1.0
+  max_global_plan_lookahead_dist: 5.0     # 전방 주시 거리 더 감소
+  global_plan_viapoint_sep: 1.0           # via point 간격 증가 (덜 엄격)
+  global_plan_prune_distance: 1.0
+  exact_arc_length: False
+  feasibility_check_no_poses: 1           # 체크 포인트 최소화 (1개만!)
+  publish_feedback: True
+    
+  # Robot - Ackermann 차량 특성 (현실적 설정)
+  max_vel_x: 5.0                          # 최대 속도 감소 (안전)
+  max_vel_x_backwards: 2.0                # 후진 허용
+  min_vel_x: -1.0                         # 후진 최소 속도
+  max_vel_y: 0.0
+  max_vel_theta: 1.0                      # 회전 속도 증가
+  acc_lim_x: 5.0                          # 가속도 대폭 증가
+  acc_lim_theta: 2.0                      # 회전 가속도 대폭 증가
+  min_turning_radius: 1.0                 # 최소 회전 반경 감소 (더 급회전 가능)
+  wheelbase: 2.85
+  cmd_angle_instead_rotvel: false
+
+  footprint_model:
+    type: "polygon"
+    vertices: [[-2.0, -0.9], [-2.0, 0.9], [2.0, 0.9], [2.0, -0.9]]
+
+  # GoalTolerance - 적절한 허용 오차
+  xy_goal_tolerance: 0.5                  # 위치 허용오차 (50cm)
+  yaw_goal_tolerance: 0.3                 # 각도 허용오차 증가 (회전 덜 엄격)
+  free_goal_vel: False                    # 목표 지점에서 반드시 정지
+  complete_global_plan: True
+    
+    
+  # Obstacles - 최대한 완화
+  min_obstacle_dist: 0.1                  # 최소 장애물 거리 극단적 감소
+  inflation_dist: 0.2                     # 인플레이션 극소화
+  include_costmap_obstacles: False        # costmap 장애물 무시!
+  costmap_obstacles_behind_robot_dist: 1.0
+  obstacle_poses_affected: 5              # 영향받는 포즈 최소화
+
+  dynamic_obstacle_inflation_dist: 0.2
+  include_dynamic_obstacles: False        # 동적 장애물 무시
+
+  costmap_converter_plugin: ""
+  costmap_converter_spin_thread: True
+  costmap_converter_rate: 5
+
+  # Optimization - 경로 추종 최우선
+  no_inner_iterations: 5
+  # Optimization - 경로 추종 최우선 + 속도 최적화
+  no_inner_iterations: 5
+  no_outer_iterations: 4
+  optimization_activate: True
+  optimization_verbose: False
+  penalty_epsilon: 0.1
+  obstacle_cost_exponent: 2               # 장애물 비용 지수 감소 (덜 민감)
+  weight_max_vel_x: 2                     # 속도 우선순위
+  weight_max_vel_theta: 1
+  weight_acc_lim_x: 1
+  weight_acc_lim_theta: 1
+  weight_kinematics_nh: 100                # 비홀로노믹 제약 감소
+  weight_kinematics_forward_drive: 100    # 전진 가중치 감소 (더 유연하게)
+  weight_kinematics_turning_radius: 0.1   # 회전 반경 제약 거의 제거
+  weight_optimaltime: 10.0                # 시간 최적화 증가 (빠른 경로 우선)
+  weight_shortest_path: 0.0               # 최단 경로 가중치 제거 (경로만 따르기)
+  weight_obstacle: 5                      # 장애물 회피 최소화
+  weight_inflation: 0.05                  # 인플레이션 가중치 최소화
+  weight_dynamic_obstacle: 5
+  weight_dynamic_obstacle_inflation: 0.05
+  weight_viapoint: 0.5                    # via point 가중치 최소화
+  weight_adapt_factor: 2
+  weight_prefer_rotdir: 10                # 회전 방향 선호도 감소
+
+  # Homotopy Class Planner - 비활성화 (속도 우선)
+  enable_homotopy_class_planning: False
+  enable_multithreading: True
+  max_number_classes: 2
+  selection_cost_hysteresis: 1.0
+  selection_prefer_initial_plan: 0.95
+  selection_obst_cost_scale: 100.0
+  selection_alternative_time_cost: False
+  roadmap_graph_no_samples: 15
+  roadmap_graph_area_width: 5
+  roadmap_graph_area_length_scale: 1.0
+  h_signature_prescaler: 0.5
+  h_signature_threshold: 0.1
+  obstacle_heading_threshold: 0.45
+  switching_blocking_period: 0.0
+  viapoints_all_candidates: True
+  delete_detours_backwards: True
+  max_ratio_detours_duration_best_duration: 3.0
+  visualize_hc_graph: False
+  visualize_with_time_as_z_axis_scale: False
+
+  # Recovery
+  shrink_horizon_backup: True
+  shrink_horizon_min_duration: 10
+  oscillation_recovery: True
+  oscillation_v_eps: 0.1
+  oscillation_omega_eps: 0.1
+  oscillation_recovery_min_duration: 10
+  oscillation_filter_duration: 10

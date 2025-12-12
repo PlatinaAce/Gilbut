@@ -1,11 +1,11 @@
 <launch>
   <!-- CARLA Ackermann Control to Diff Drive Converter -->
   <node pkg="navigation_stack" type="cmd_vel_to_ackermann.py" name="cmd_vel_to_ackermann" output="screen">
-    <remap from="/cmd_vel" to="/carla/ego_vehicle/cmd_vel"/>
-    <remap from="/ackermann_cmd" to="/carla/ego_vehicle/ackermann_cmd"/>
+    <remap from="cmd_vel" to="/cmd_vel"/>  <!-- move_base 출력 -->
+    <remap from="ackermann_cmd" to="/carla/ego_vehicle/vehicle_control_cmd"/>
     
     <!-- Vehicle parameters -->
     <param name="wheelbase" value="2.85"/>  <!-- CARLA 차량 축거 -->
-    <param name="max_steer_angle" value="0.7"/>  <!-- 최대 조향각 (라디안) -->
+    <param name="max_steer_angle" value="0.7"/>  <!-- 최대 조향각 증가 -->
   </node>
 </launch>

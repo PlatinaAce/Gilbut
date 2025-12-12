@@ -19,16 +19,16 @@
   
   <!-- 2. Static Map Server (map load )-->
   <node pkg="map_server" type="map_server" name="map_server" 
-        args="$(find navigation_stack)/maps/scans.yaml" output="screen">
+        args="$(find navigation_stack)/maps/test.yaml" output="screen">
     <param name="frame_id" value="map"/>
-  </node> 
+  </node>
   
   <!-- 3. HDL Localization (3D PCD 맵으로 위치 추정)-->
   <include file="$(find hdl_localization)/launch/hdl_localization.launch">
     <arg name="points_topic" value="/carla/ego_vehicle/lidar"/>
     <arg name="odom_child_frame_id" value="ego_vehicle"/>
-  </include> 
-
+  </include>
+  
   <!-- 3-1. Odometry를 TF로 변환 (추가) -->
   <node pkg="robot_localization" type="ekf_localization_node" name="ekf_odom" clear_params="true" output="screen">
     <param name="frequency" value="30"/>

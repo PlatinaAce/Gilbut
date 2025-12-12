@@ -13,6 +13,7 @@ find_package(catkin REQUIRED COMPONENTS
   move_base
   global_planner
   dwa_local_planner
+  teb_local_planner
   costmap_2d
   carla_msgs
 )
@@ -30,6 +31,7 @@ catkin_package(
     move_base
     global_planner
     dwa_local_planner
+    teb_local_planner
     costmap_2d
     carla_msgs
 )

@@ -1,34 +1,14 @@
-global_planner: 
-  plugin: "global_planner/GlobalPlanner"
-  tolerance: 0.5
-  allow_unknown: true
-  default_tolerance: 0.0
-  use_dijkstra: false
-  use_a_star: true
-  a_star: 
-    heuristic: "euclidean"
-    weight: 1.0
-    max_iterations: 1000
-    allow_diagonal: true
-    inflate: true
-    inflation_radius: 0.55
-    cost_factor: 10.0
-    visualize: true
-    publish_frequency: 1.0
-    publish_cost_grid: true
-    publish_path: true
-    path_topic: "/global_plan"
 GlobalPlanner:
-  allow_unknown: true
-  default_tolerance: 0.5
-  visualize_potential: false
-  use_dijkstra: false  # A* 사용
+  allow_unknown: true           # 알 수 없는 영역 허용
+  default_tolerance: 3.0        # 허용 오차 증가 (더 일관된 속도)
+  visualize_potential: true     # 시각화 활성화
+  use_dijkstra: false           # A* 사용 (더 빠름)
   use_quadratic: true
-  use_grid_path: false
+  use_grid_path: false          # 부드러운 경로
   old_navfn_behavior: false
   lethal_cost: 253
   neutral_cost: 50
-  cost_factor: 3.0
-  publish_potential: true
-  orientation_mode: 0
-  orientation_window_size: 1
+  cost_factor: 3.0              # 비용 인자
+  publish_potential: true       # 퍼텐셜 발행 활성화
+  orientation_mode: 0           # 방향 무시
+  outline_map: false

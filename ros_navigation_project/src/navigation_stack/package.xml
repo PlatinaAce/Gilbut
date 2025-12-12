@@ -2,7 +2,7 @@
 <package format="2">
   <name>navigation_stack</name>
   <version>0.0.1</version>
-  <description>Navigation stack for CARLA with A* and DWA</description>
+  <description>Navigation stack for CARLA with Global Planner and TEB Local Planner</description>
 
   <maintainer email="user@todo.todo">Your Name</maintainer>
   <license>MIT</license>
@@ -20,6 +20,7 @@
   <depend>move_base</depend>
   <depend>global_planner</depend>
   <depend>dwa_local_planner</depend>
+  <depend>teb_local_planner</depend>
   <depend>costmap_2d</depend>
   <depend>carla_msgs</depend>
   <depend>pointcloud_to_laserscan</depend>

@@ -15,14 +15,15 @@
     
     <!-- Planner Parameters -->
     <rosparam file="$(find navigation_stack)/config/global_planner_params.yaml" command="load" />
-    <rosparam file="$(find navigation_stack)/config/dwa_local_planner_params.yaml" command="load" />
+    <rosparam file="$(find navigation_stack)/config/teb_local_planner_params.yaml" command="load" />
     
     <!-- Planner Selection -->
     <param name="base_global_planner" value="global_planner/GlobalPlanner"/>
-    <param name="base_local_planner" value="dwa_local_planner/DWAPlannerROS"/>
+    <!-- TEB로 복귀 -->
+    <param name="base_local_planner" value="teb_local_planner/TebLocalPlannerROS"/>
     
     <!-- Topic Remapping -->
-    <remap from="cmd_vel" to="/carla/ego_vehicle/cmd_vel"/>
+    <!-- cmd_vel을 /cmd_vel로 발행 (remap 제거) -->
     <remap from="odom" to="/carla/ego_vehicle/odometry"/>
   </node>
 </launch>

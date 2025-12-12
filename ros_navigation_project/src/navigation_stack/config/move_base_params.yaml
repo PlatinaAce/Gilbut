@@ -1,16 +1,25 @@
 # Move Base Behavior Parameters
-controller_frequency: 20.0
-controller_patience: 15.0
+controller_frequency: 10.0      # 제어 주파수
+controller_patience: 15.0       # 타임아웃
 
-planner_frequency: 1.0
-planner_patience: 5.0
+planner_frequency: 2.0          # 재계획 주파수 증가 (빠른 초기 계획)
+planner_patience: 8.0           # 계획 타임아웃 증가
 
-oscillation_timeout: 10.0
-oscillation_distance: 0.2
+oscillation_timeout: 10.0       # 진동 타임아웃
+oscillation_distance: 0.5
 
 recovery_behavior_enabled: true
 clearing_rotation_allowed: true
 
 shutdown_costmaps: false
 conservative_reset_dist: 3.0
-clearing_radius: 0.5
+clearing_radius: 2.0
+
+# 경로 추종
+max_planning_retries: 10        # 재시도
+planner_time_tolerance: 5.0     # 시간 허용 오차
+
+# 목표 도달 허용 오차
+xy_goal_tolerance: 0.5          # 위치 허용 오차 50cm
+yaw_goal_tolerance: 0.2         # 각도 허용 오차
+latch_xy_goal_tolerance: false
