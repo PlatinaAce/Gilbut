@@ -3,3 +3,7 @@
 ros:
   websocket:
     uri: ws://localhost:9090/ros
+
+tts:
+  websocket:
+    uri: ws://localhost:9090/tts

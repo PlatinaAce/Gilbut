@@ -1,11 +1,11 @@
-package com.gilbut.llmService.Service;
+package com.gilbut.llmService.Service.Tts;
 
 import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.gilbut.llmService.DTO.RosMessageDTO.RosMessageDTO;
-import com.gilbut.llmService.DTO.RosMessageDTO.RosStatusType;
-import com.gilbut.llmService.Properties.RosProperties;
-import com.gilbut.llmService.WebSocketClient.Adapters.RosWebSocketClient;
+import com.gilbut.llmService.DTO.TtsMessageDTO.TtsMessageDTO;
+import com.gilbut.llmService.DTO.TtsMessageDTO.TtsStatusType;
+import com.gilbut.llmService.Properties.TtsProperties;
+import com.gilbut.llmService.WebSocketClient.Adapters.TtsWebSocketClient;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -17,19 +17,14 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
-/*
- * ROS 로의 WebSocket 연결, 송신, 재연결 을 지원하는 서비스
- * 이후, 전송이 실패했을 경우의 안내 메시지를 전송하도록 구현하면 좋을 듯?
- */
-
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class RosService {
+public class TtsService {
 
     private final ObjectMapper objectMapper;
-    private final RosProperties rosProperties;
-    private final RosWebSocketClient client;
+    private final TtsProperties rosProperties;
+    private final TtsWebSocketClient client;
 
     // 비동기 연결 상태 추적
     private final AtomicBoolean connected = new AtomicBoolean(false);
@@ -58,21 +53,21 @@ public class RosService {
         client.setOnOpen(() -> {
             connected.set(true);
             reconnectAttempts.set(0);
-            log.info("[ROS - RosService] 연결 성공: {}", rosProperties.getUri());
+            log.info("[TTS - TtsService] 연결 성공: {}", rosProperties.getUri());
         });
         client.setOnClose(code -> {
             connected.set(false);
 
             if (code == 1000) {
-                log.info("[ROS - RosService] 연결 종료");
+                log.info("[TTS - TtsService] 연결 종료");
                 return;
             }
 
-            log.warn("[ROS - RosService] 비정상 종료 (Code: {}). 재연결 시도...", code);
+            log.warn("[TTS - TtsService] 비정상 종료 (Code: {}). 재연결 시도...", code);
             tryReconnectionAsync();
         });
         client.setOnError(ex -> {
-            log.error("[ROS - RosService] 연결 오류 발생", ex);
+            log.error("[TTS - TtsService] 연결 오류 발생", ex);
             connected.set(false);
         });
 
@@ -80,28 +75,28 @@ public class RosService {
             // ROS 블로킹 연결
             this.client.connect();
         } catch (Exception e) {
-            log.error("[ROS - RosService] 초기 연결 실패... 재시도...", e);
+            log.error("[TTS - TtsService] 초기 연결 실패... 재시도...", e);
             tryReconnectionAsync();
         }
     }
 
-    public void send(RosMessageDTO dto) {
+    public void send(TtsMessageDTO dto) {
         if (dto == null)
             return;
 
         if (!connected.get()) {
-            log.warn("[ROS - RosService] 연결 없음. 메시지 폐기");
+            log.warn("[TTS - TtsService] 연결 없음. 메시지 폐기");
             return;
         }
 
         try {
-            String rosJson = objectMapper.writeValueAsString(dto);
-            client.send(rosJson);
-            log.info("[ROS - RosService] 메시지 전송: {}", rosJson);
+            String ttsJson = objectMapper.writeValueAsString(dto);
+            client.send(ttsJson);
+            log.info("[TTS - TtsService] 메시지 전송: {}", ttsJson);
         } catch (JacksonException e) {
-            log.error("[ROS - RosService] 메시지 전송 실패 >> Json 변환 실패", e);
+            log.error("[TTS - TtsService] 메시지 전송 실패 >> Json 변환 실패", e);
         } catch (Exception e) {
-            log.error("[ROS - RosService] 메시지 전송 실패 >> 전송 오류", e);
+            log.error("[TTS - TtsService] 메시지 전송 실패 >> 전송 오류", e);
         }
     }
 
@@ -120,7 +115,7 @@ public class RosService {
                 MAX_RECONNECT_DELAY_MS
         );
 
-        log.warn("[ROS - RosService] ROS 재연결 {}ms 후 {}회 시도", delay, attempt);
+        log.warn("[TTS - TtsService] TTS 재연결 {}ms 후 {}회 시도", delay, attempt);
 
         try {
             Thread.sleep(delay);
@@ -128,7 +123,7 @@ public class RosService {
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         } catch (Exception e) {
-            log.error("[ROS - RosService] 연결 재시도 실패", e);
+            log.error("[TTS - TtsService] 연결 재시도 실패", e);
         } finally {
             reconnecting.set(false);
         }
@@ -138,11 +133,10 @@ public class RosService {
         reconnectExecutor.submit(this::tryReconnection);
     }
 
-    public void sendErrorMessageToROS() {
+    public void sendErrorMessageToTts() {
         // 오류 메시지 송신
-        RosMessageDTO rosMessageDTO = new RosMessageDTO();
-        rosMessageDTO.setStatus(RosStatusType.ERROR);
-        this.send(rosMessageDTO);
+        TtsMessageDTO ttsMessageDTO = new TtsMessageDTO(TtsStatusType.ERROR, "오류가 발생했어요. 다시 말씀해주세요.");
+        this.send(ttsMessageDTO);
     }
 
     public boolean isConnected() {

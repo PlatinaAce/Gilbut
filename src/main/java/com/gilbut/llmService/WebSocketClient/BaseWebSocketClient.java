@@ -1,6 +1,5 @@
 package com.gilbut.llmService.WebSocketClient;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.handshake.ServerHandshake;
@@ -14,13 +13,13 @@ import java.util.function.Consumer;
  */
 
 @Slf4j
-public class RosWebSocketClient extends WebSocketClient implements RosClient {
+public abstract class BaseWebSocketClient extends WebSocketClient {
 
     private Runnable onOpenCallback = () -> {};
     private Consumer<Integer> onCloseCallback = code -> {};
     private Consumer<Exception> onErrorCallback = ex -> {};
 
-    public RosWebSocketClient(URI serverUri) throws Exception {
+    public BaseWebSocketClient(URI serverUri) {
         super(serverUri);
     }
 
@@ -46,17 +45,12 @@ public class RosWebSocketClient extends WebSocketClient implements RosClient {
     }
 
     // 이벤트 등록 메서드
-    @Override
     public void setOnOpen(Runnable callback) {
         this.onOpenCallback = callback;
     }
-
-    @Override
     public void setOnClose(Consumer<Integer> callback) {
         this.onCloseCallback = callback;
     }
-
-    @Override
     public void setOnError(Consumer<Exception> callback) {
         this.onErrorCallback = callback;
     }

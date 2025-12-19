@@ -1,28 +1,29 @@
-package com.gilbut.llmService.Service.RosServiceTests;
+package com.gilbut.llmService.Service.TtsServiceTests;
+
+/*
+ * TtsService 의 Mocking 기반 유닛 테스트
+ */
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.gilbut.llmService.DTO.RosMessageDTO.RosMessageDTO;
-import com.gilbut.llmService.DTO.RosMessageDTO.RosStatusType;
+import com.gilbut.llmService.DTO.TtsMessageDTO.TtsMessageDTO;
+import com.gilbut.llmService.DTO.TtsMessageDTO.TtsStatusType;
 import com.gilbut.llmService.Log.LoggingTestExecutionOrderExtension;
-import com.gilbut.llmService.Properties.RosProperties;
-import com.gilbut.llmService.Service.RosService;
-import com.gilbut.llmService.WebSocketClient.Adapters.RosWebSocketClient;
-import org.junit.jupiter.api.*;
+import com.gilbut.llmService.Properties.TtsProperties;
+import com.gilbut.llmService.Service.Tts.TtsService;
+import com.gilbut.llmService.WebSocketClient.Adapters.TtsWebSocketClient;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
-
-/*
- * RosService 의 Mocking 기반 유닛 테스트
- */
 
 @TestMethodOrder(MethodOrderer.Random.class)
 @ActiveProfiles("test")
@@ -31,22 +32,22 @@ import static org.mockito.Mockito.*;
         MockitoExtension.class
 })
 @Transactional
-public class RosServiceTest {
+public class TtsServiceTest {
     @Mock
-    private RosWebSocketClient client;
+    private TtsWebSocketClient client;
 
     @Mock
-    private RosProperties rosProperties;
+    private TtsProperties ttsProperties;
 
     @Spy
     private ObjectMapper objectMapper = new ObjectMapper();
 
     @InjectMocks
-    private RosService rosService;
+    private TtsService ttsService;
 
     @BeforeEach
     void setUp() throws Exception {
-        lenient().when(rosProperties.getUri()).thenReturn("ws://localhost:9090");
+        lenient().when(ttsProperties.getUri()).thenReturn("ws://localhost:7070/tts");
     }
 
     @Test
@@ -55,14 +56,14 @@ public class RosServiceTest {
         doNothing().when(client).connect();
 
         // 초기 연결
-        rosService.init();
-        rosService.setConnected(true);
+        ttsService.init();
+        ttsService.setConnected(true);
 
-        RosMessageDTO rosDTO = new RosMessageDTO();
-        rosDTO.setStatus(RosStatusType.SUCCESS);
+        TtsMessageDTO ttsDTO = new TtsMessageDTO();
+        ttsDTO.setStatus(TtsStatusType.SUCCESS);
 
         // when
-        rosService.send(rosDTO);
+        ttsService.send(ttsDTO);
 
         // then
         verify(client, times(1)).send(anyString());
@@ -79,7 +80,7 @@ public class RosServiceTest {
         doNothing().when(client).reconnect();
 
         // when
-        rosService.init();
+        ttsService.init();
 
         // 비동기 재연결 대기
         Thread.sleep(1200);
@@ -89,25 +90,25 @@ public class RosServiceTest {
     }
 
     @Test
-    void send_connectFail_test() throws Exception{
+    void send_connectFail_test() throws Exception {
         // given
         doNothing().when(client).connect();
         doNothing().when(client).reconnect();
 
-        rosService.init();
-        rosService.setConnected(true);
+        ttsService.init();
+        ttsService.setConnected(true);
 
-        // send 중 오류 발생 -> 연결 끊김
+        // send 과정에서 오류 발생 >> 연결 끊김
         doThrow(new RuntimeException("[MOCK] send() 실패")).when(client).send(anyString());
 
-        RosMessageDTO rosDTO = new RosMessageDTO();
-        rosDTO.setStatus(RosStatusType.SUCCESS);
+        TtsMessageDTO ttsDTO = new TtsMessageDTO();
+        ttsDTO.setStatus(TtsStatusType.SUCCESS);
 
         // when
-        rosService.send(rosDTO);
-        rosService.onConnectionLost(1006);
+        ttsService.send(ttsDTO);
+        ttsService.onConnectionLost(1006);
 
-        // 비동기 재연결 대기 (실제 코드에서는 1000부터 시작)
+        // 비동기 재연결 대기
         Thread.sleep(1200);
 
         // then
