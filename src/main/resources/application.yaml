@@ -1,0 +1,6 @@
+spring:
+  application:
+    name: simpleTestServer
+
+server:
+  port: 9090
