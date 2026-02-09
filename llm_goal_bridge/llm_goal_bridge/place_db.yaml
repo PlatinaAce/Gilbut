@@ -1,0 +1,3 @@
+places:
+  kitchen: {x: 1.0, y: 2.0, yaw: 0.0, frame: map}
+  door:    {x: 0.0, y: 0.0, yaw: 3.14, frame: map}
