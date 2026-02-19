@@ -1,0 +1,17 @@
+<launch>
+  <node pkg="llm_goal_bridge" type="tcp_goal_bridge.py" name="llm_goal_bridge" output="screen">
+    <param name="listen_host" value="0.0.0.0" />
+    <param name="listen_port" value="9000" />
+
+    <param name="default_frame" value="map" />
+    <param name="goal_topic" value="/move_base_simple/goal" />
+
+    <param name="enable_cmd_vel" value="true" />
+    <param name="cmd_vel_topic" value="/cmd_vel" />
+    <param name="default_linear_speed" value="0.2" />
+    <param name="default_angular_speed" value="0.6" />
+    <param name="cmd_publish_hz" value="10.0" />
+
+    <rosparam file="$(find llm_goal_bridge)/config/place_db.yaml" command="load" />
+  </node>
+</launch>
