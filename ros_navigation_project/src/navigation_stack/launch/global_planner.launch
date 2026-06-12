@@ -1,0 +1,13 @@
+<launch>
+  <arg name="global_planner_params" default="$(find navigation_stack)/config/global_planner_params.yaml"/>
+  <arg name="costmap_common_params" default="$(find navigation_stack)/config/costmap_common_params.yaml"/>
+  <arg name="global_costmap_params" default="$(find navigation_stack)/config/global_costmap_params.yaml"/>
+  <arg name="local_costmap_params" default="$(find navigation_stack)/config/local_costmap_params.yaml"/>
+  
+  <node pkg="global_planner" type="global_planner" name="global_planner" output="screen">
+    <param name="global_planner_params" value="$(arg global_planner_params)"/>
+    <param name="costmap_common_params" value="$(arg costmap_common_params)"/>
+    <param name="global_costmap_params" value="$(arg global_costmap_params)"/>
+    <param name="local_costmap_params" value="$(arg local_costmap_params)"/>
+  </node>
+</launch>

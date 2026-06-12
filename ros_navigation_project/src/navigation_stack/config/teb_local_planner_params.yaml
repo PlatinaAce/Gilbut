@@ -1,0 +1,97 @@
+TebLocalPlannerROS:
+
+  odom_topic: /odom
+  map_frame: map
+    
+  # Trajectory
+  teb_autosize: True
+  dt_ref: 0.15                             # 시간 간격 증가 (계산 단순화)
+  dt_hysteresis: 0.01
+  max_samples: 200                        # 샘플 수 감소 (빠른 계산)
+  global_plan_overwrite_orientation: True
+  allow_init_with_backwards_motion: True  # 후진 허용!
+  force_reinit_new_goal_dist: 0.5
+  max_global_plan_lookahead_dist: 3.0     # 전방 주시 거리 더 감소
+  global_plan_viapoint_sep: 1.0           # via point 간격 증가 (덜 엄격)
+  global_plan_prune_distance: 1.0
+  exact_arc_length: False
+  feasibility_check_no_poses: 10           # 체크 포인트 최소화 (1개만!)
+  publish_feedback: True
+    
+  # Robot - Ackermann 차량 특성 (현실적 설정)
+  max_vel_x: 16.0                          # 최대 속도
+  max_vel_x_backwards: 2.0                # 후진 허용
+  min_vel_x: -1.0                         # 후진 최소 속도
+  max_vel_y: 0.0
+  max_vel_theta: 4.0                      # 회전 속도 증가
+  acc_lim_x: 4.0                          # 가속도 대폭 증가
+  acc_lim_theta: 2.0                      # 회전 가속도 대폭 증가
+  min_turning_radius: 0.0                 # 최소 회전 반경 감소 (더 급회전 가능)
+  wheelbase: 0.5
+  cmd_angle_instead_rotvel: false
+
+  footprint_model:
+    type: "polygon"
+    vertices: [[-0.36, -0.25], [-0.36, 0.25], [0.36, 0.25], [0.36, -0.25]]
+
+  # GoalTolerance - 적절한 허용 오차
+  xy_goal_tolerance: 1.0                  # 위치 허용오차 (50cm)
+  yaw_goal_tolerance: 0.3                 # 각도 허용오차 증가 (회전 덜 엄격)
+  free_goal_vel: False                    # 목표 지점에서 반드시 정지
+    
+  # Obstacles - 정지 후 회전 전략
+  min_obstacle_dist: 0.8                  # 최소 장애물 거리 (안전 마진)
+  inflation_dist: 0.8                     # 인플레이션 (정지 우선)
+  include_costmap_obstacles: True        # local costmap 장애물 무시!
+  costmap_obstacles_behind_robot_dist: 2.0
+  obstacle_poses_affected: 50
+  include_dynamic_obstacles: True
+
+  costmap_converter_plugin: ""
+  costmap_converter_spin_thread: True
+  costmap_converter_rate: 5
+
+  # Optimization - 경로 추종 최우선
+  no_inner_iterations: 10
+  no_outer_iterations: 10
+  optimization_activate: True
+  optimization_verbose: False
+  penalty_epsilon: 0.1
+  weight_max_vel_x: 16.0                    # 속도 우선순위
+  weight_max_vel_theta: 4.0
+  weight_acc_lim_x: 4.0
+  weight_acc_lim_theta: 2.0
+  weight_kinematics_nh: 1000.0                # 비홀로노믹 제약 감소
+  weight_kinematics_forward_drive: 100.0    # 전진 가중치 감소 (더 유연하게)
+  weight_kinematics_turning_radius: 100.0   # 회전 반경 제약 거의 제거
+  weight_optimaltime: 5.0                # 속도 복구 (경로 따르면서 이동)
+  weight_obstacle: 100.0                  # 장애물 회피 덜 엄격 (경로 우선)
+  weight_inflation: 20.0                  # 인플레이션 극소화 (유연성)
+  weight_viapoint: 1000.0                 # ★ 경로 추종 최우선 (2배 강화)
+  weight_adapt_factor: 2.0
+
+  # Homotopy Class Planner
+  enable_homotopy_class_planning: True
+  enable_multithreading: True
+  max_number_classes: 4
+  selection_cost_hysteresis: 1.0
+  selection_obst_cost_scale: 100.0
+  selection_alternative_time_cost: False
+  roadmap_graph_no_samples: 15
+  roadmap_graph_area_width: 8
+  roadmap_graph_area_length_scale: 1.0
+  h_signature_prescaler: 1.0
+  h_signature_threshold: 0.1
+  obstacle_heading_threshold: 1.0
+  switching_blocking_period: 0.0
+  viapoints_all_candidates: True
+  visualize_hc_graph: True
+
+  # Recovery
+  shrink_horizon_backup: True
+  shrink_horizon_min_duration: 5.0
+  oscillation_recovery: True
+  oscillation_v_eps: 0.1
+  oscillation_omega_eps: 0.1
+  oscillation_recovery_min_duration: 5
+  oscillation_filter_duration: 5

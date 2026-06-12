@@ -1,0 +1,19 @@
+<launch>
+  <node name="dwa_local_planner" pkg="dwa_local_planner" type="dwa_local_planner" output="screen">
+    <param name="max_vel_x" value="4.0"/>
+    <param name="min_vel_x" value="2.0"/>
+    <param name="max_vel_theta" value="1.0"/>
+    <param name="min_vel_theta" value="0.0"/>
+    <param name="acc_lim_x" value="1.0"/>
+    <param name="acc_lim_theta" value="1.0"/>
+    <param name="yaw_goal_tolerance" value="0.1"/>
+    <param name="xy_goal_tolerance" value="0.1"/>
+    <param name="latch" value="true"/>    <param name="controller_frequency" value="10.0"/>
+    <param name="sim_time" value="1.0"/>
+    <param name="path_distance_bias" value="32.0"/>
+    <param name="goal_distance_bias" value="24.0"/>
+    <param name="occdist_scale" value="0.01"/>
+    <param name="forward_point_distance" value="0.325"/>
+    <param name="oscillation_recovery" value="true"/>
+  </node>
+</launch>

@@ -1,0 +1,40 @@
+footprint: [[-0.36, -0.25], [-0.36, 0.25], [0.36, 0.25], [0.36, -0.25]]  # 차량 크기 정확히 반영
+footprint_padding: 0.03
+
+robot_base_frame: base_link
+update_frequency: 10.0
+publish_frequency: 5.0
+transform_tolerance: 2.0
+
+resolution: 0.1
+
+obstacle_range: 8.0         # 장애물 감지 범위 증가
+raytrace_range: 10.0         # 레이트레이싱 범위 증가
+
+# plugins 섹션 제거 (각 costmap 파일에서 정의)
+
+# Static Layer
+static_layer:
+  enabled: true
+  map_topic: /map
+
+# Obstacle Layer  
+obstacle_layer:
+  enabled: true
+  observation_sources: cloud
+
+  cloud:
+    data_type: PointCloud2
+    topic: /livox/lidar
+    marking: true
+    clearing: true
+    min_obstacle_height: 0.1    # 지면 위 10cm 이상 (반사 제거)
+    max_obstacle_height: 3.0    # 천장/나뭇가지 3m 이하
+    obstacle_range: 8.0
+    raytrace_range: 10.0
+
+# Inflation Layer - 균형잡힌 설정
+inflation_layer:
+  enabled: true
+  inflation_radius: 2.0       # 인플레이션 반경 감소
+  cost_scaling_factor: 5.0     # 비용 스케일링 감소
