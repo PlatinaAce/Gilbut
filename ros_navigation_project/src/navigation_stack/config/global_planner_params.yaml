@@ -1,0 +1,14 @@
+GlobalPlanner:
+  allow_unknown: true           # 알 수 없는 영역 허용
+  default_tolerance: 0.5        # 목표 허용 오차
+  visualize_potential: true     # 시각화 활성화
+  use_dijkstra: true           # A* 사용 (더 빠름)
+  use_quadratic: true
+  use_grid_path: false
+  old_navfn_behavior: false
+  lethal_cost: 253
+  neutral_cost: 50
+  cost_factor: 3.0              # 비용 인자
+  publish_potential: true       # 퍼텐셜 발행 활성화
+  orientation_mode: 2           # 목표 방향 모드
+  outline_map: false

@@ -1,0 +1,60 @@
+DWAPlannerROS:
+  # Robot Configuration Parameters - 차량용 보수적 설정
+  max_vel_x: 6.0          # 최대 속도 (안전한 주행)
+  min_vel_x: -0.5         # 후진 허용 (천천히)
+  
+  max_vel_y: 0.0          # 차량은 옆으로 못감
+  min_vel_y: 0.0
+  
+  max_vel_trans: 6.0      # 최대 병진 속도
+  min_vel_trans: 0.2      # 최소 속도 (부드러운 출발)
+  
+  max_vel_theta: 0.6      # 회전 속도 감소 (차량 특성)
+  min_vel_theta: -0.6
+  
+  acc_lim_x: 2.0          # 가속도 (부드러운 제어)
+  acc_lim_y: 0.0
+  acc_lim_theta: 1.2      # 회전 가속도
+  acc_lim_trans: 2.0
+  
+  # Goal Tolerance Parameters
+  yaw_goal_tolerance: 0.2     # 각도 허용오차
+  xy_goal_tolerance: 0.4      # 위치 허용오차
+  latch_xy_goal_tolerance: false
+  
+  # Forward Simulation Parameters - 더 긴 예측
+  sim_time: 2.0               # 시뮬레이션 시간
+  sim_granularity: 0.05       # 세밀도
+  vx_samples: 20              # 속도 샘플
+  vy_samples: 0
+  vth_samples: 40             # 회전 샘플 증가
+  controller_frequency: 20.0
+  
+  # Trajectory Scoring Parameters - 경로 추종 강화 & 장애물 회피
+  path_distance_bias: 64.0    # 경로 추종 가중치 (높음)
+  goal_distance_bias: 24.0    # 목표 지향성
+  occdist_scale: 0.5          # 장애물 회피 가중치 증가 !!!
+  forward_point_distance: 0.8 # 전방 주시 거리 증가
+  stop_time_buffer: 0.5       # 정지 버퍼 증가 (안전)
+  scaling_speed: 0.35
+  max_scaling_factor: 0.3
+  
+  # Oscillation Prevention Parameters
+  oscillation_reset_dist: 0.15
+  oscillation_reset_angle: 0.3
+  oscillation_reset_time: 10.0
+  
+  # Debugging
+  publish_traj_pc: true
+  publish_cost_grid_pc: true
+  
+  # Global plan
+  prune_plan: true
+  
+  # 차량 특성 반영
+  use_dwa: true
+  restore_defaults: false
+  
+  # 속도 제한 (안전 주행)
+  trans_stopped_vel: 0.1
+  theta_stopped_vel: 0.1
